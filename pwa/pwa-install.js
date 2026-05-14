@@ -54,6 +54,7 @@
   injectMeta();
   injectManifest();
   injectCss();
+  cleanupLegacyBanner();
   registerServiceWorker();
 
   window.addEventListener("beforeinstallprompt", function (event) {
@@ -160,7 +161,7 @@
   }
 
   function injectCss() {
-    setManagedLink("stylesheet", absoluteAsset("pwa-install.css?v=20260515-4"), "styles");
+    setManagedLink("stylesheet", absoluteAsset("pwa-install.css?v=20260515-5"), "styles");
     document.documentElement.style.setProperty("--cosmo-pwa-bottom-offset", config.bottomOffset);
   }
 
@@ -257,6 +258,7 @@
   function showBanner() {
     if (isStandalone || isRecentlyDismissed()) return;
     ready(function () {
+      cleanupLegacyBanner();
       banner = banner || buildBanner();
       banner.classList.add("is-visible");
       updateBannerState();
@@ -313,6 +315,13 @@
       window.clearTimeout(fallbackTimer);
       fallbackTimer = null;
     }
+  }
+
+  function cleanupLegacyBanner() {
+    ready(function () {
+      var legacyBanner = document.getElementById("pwa-banner");
+      if (legacyBanner) legacyBanner.remove();
+    });
   }
 
   function isRecentlyDismissed() {

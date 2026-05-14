@@ -1,4 +1,4 @@
-# Cosmo Beauty PWA для Tilda
+# Аппаратная Косметология PWA для Tilda
 
 ## Что готово
 

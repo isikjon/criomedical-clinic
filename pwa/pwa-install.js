@@ -5,9 +5,9 @@
   var scriptBase = script ? new URL(".", script.src).href : "/";
   var config = Object.assign(
     {
-      appName: "Cosmo Beauty",
-      appShortName: "Cosmo",
-      appDescription: "Приложение сайта Cosmo Beauty для быстрой записи и просмотра услуг.",
+      appName: "Аппаратная Косметология",
+      appShortName: "Аппаратная Косметология",
+      appDescription: "Приложение сайта Аппаратная Косметология для быстрой записи и просмотра услуг.",
       installText: "Установить",
       subtitle: "Установить приложение",
       assetBase: scriptBase,
@@ -21,7 +21,7 @@
       showWithoutPrompt: true,
       fallbackDelay: 6500,
       openChromeOnAndroidFallback: true,
-      assetVersion: "20260515-7"
+      assetVersion: "20260515-8"
     },
     window.COSMO_PWA_CONFIG || {}
   );

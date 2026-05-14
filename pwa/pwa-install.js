@@ -161,7 +161,7 @@
   }
 
   function injectCss() {
-    setManagedLink("stylesheet", absoluteAsset("pwa-install.css?v=20260515-5"), "styles");
+    setManagedLink("stylesheet", absoluteAsset("pwa-install.css?v=20260515-6"), "styles");
     document.documentElement.style.setProperty("--cosmo-pwa-bottom-offset", config.bottomOffset);
   }
 

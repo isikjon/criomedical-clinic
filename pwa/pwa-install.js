@@ -20,7 +20,8 @@
       dismissedDays: 14,
       showWithoutPrompt: true,
       fallbackDelay: 6500,
-      openChromeOnAndroidFallback: true
+      openChromeOnAndroidFallback: true,
+      assetVersion: "20260515-7"
     },
     window.COSMO_PWA_CONFIG || {}
   );
@@ -102,8 +103,8 @@
     setMeta("apple-mobile-web-app-capable", "yes");
     setMeta("apple-mobile-web-app-title", config.appShortName);
     setMeta("apple-mobile-web-app-status-bar-style", "default");
-    setManagedLink("apple-touch-icon", absoluteAsset("icons/icon-180x180.png"), "apple-icon");
-    setManagedLink("icon", absoluteAsset("icons/favicon.ico"), "favicon");
+    setManagedLink("apple-touch-icon", versionedAsset("icons/icon-180x180.png"), "apple-icon");
+    setManagedLink("icon", versionedAsset("icons/favicon.ico"), "favicon");
   }
 
   function injectManifest() {
@@ -161,7 +162,7 @@
   }
 
   function injectCss() {
-    setManagedLink("stylesheet", absoluteAsset("pwa-install.css?v=20260515-6"), "styles");
+    setManagedLink("stylesheet", versionedAsset("pwa-install.css"), "styles");
     document.documentElement.style.setProperty("--cosmo-pwa-bottom-offset", config.bottomOffset);
   }
 
@@ -185,7 +186,7 @@
     root.innerHTML =
       '<div class="cosmo-pwa-banner__inner">' +
       '<div class="cosmo-pwa-banner__icon"><img src="' +
-      escapeAttr(absoluteAsset("icons/icon-180x180.png")) +
+      escapeAttr(versionedAsset("icons/icon-180x180.png")) +
       '" alt=""></div>' +
       '<div class="cosmo-pwa-banner__copy">' +
       '<p class="cosmo-pwa-banner__title">' +
@@ -357,7 +358,7 @@
 
   function icon(size, file, purpose) {
     return {
-      src: absoluteAsset("icons/" + file),
+      src: versionedAsset("icons/" + file),
       sizes: size + "x" + size,
       type: "image/png",
       purpose: purpose
@@ -366,6 +367,14 @@
 
   function absoluteAsset(path) {
     return new URL(path, config.assetBase).href;
+  }
+
+  function versionedAsset(path) {
+    var url = new URL(path, config.assetBase);
+    if (config.assetVersion) {
+      url.searchParams.set("v", config.assetVersion);
+    }
+    return url.href;
   }
 
   function setMeta(name, content) {

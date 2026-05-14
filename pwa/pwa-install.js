@@ -13,7 +13,7 @@
       assetBase: scriptBase,
       startUrl: window.location.origin + "/",
       scope: window.location.origin + "/",
-      themeColor: "#006b4f",
+      themeColor: "#222222",
       backgroundColor: "#ffffff",
       bottomOffset: "0px",
       serviceWorkerUrl: "",
@@ -117,7 +117,7 @@
   }
 
   function injectCss() {
-    setLink("stylesheet", absoluteAsset("pwa-install.css"));
+    setLink("stylesheet", absoluteAsset("pwa-install.css?v=20260515-2"));
     document.documentElement.style.setProperty("--cosmo-pwa-bottom-offset", config.bottomOffset);
   }
 

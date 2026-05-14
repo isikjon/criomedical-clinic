@@ -1,0 +1,35 @@
+<!-- Cosmo Beauty PWA: вставить в Tilda -> Site Settings -> More -> HTML code for head -->
+<script>
+  window.COSMO_PWA_CONFIG = {
+    appName: "Cosmo Beauty",
+    appShortName: "Cosmo",
+    appDescription: "Приложение сайта Cosmo Beauty для быстрой записи и просмотра услуг.",
+    installText: "Установить",
+    subtitle: "Установить приложение",
+    themeColor: "#006b4f",
+    backgroundColor: "#ffffff",
+    startUrl: "https://criomedical-clinic.ru/",
+    scope: "https://criomedical-clinic.ru/",
+
+    /*
+      Заменить на публичный URL папки pwa/ после включения GitHub Pages.
+      Пример: https://username.github.io/cosmo-pwa/pwa/
+    */
+    assetBase: "https://isikjon.github.io/criomedical-clinic/pwa/",
+
+    /*
+      Если получится положить sw.js именно на https://criomedical-clinic.ru/sw.js,
+      поменять на "/sw.js". Если файл будет только на GitHub Pages, оставить пустым.
+    */
+    serviceWorkerUrl: "",
+
+    /*
+      Если нижняя панель сайта перекрывает баннер, поставьте ее высоту:
+      например "72px". Для баннера в самый низ оставить "0px".
+    */
+    bottomOffset: "0px",
+    dismissedDays: 14,
+    showWithoutPrompt: true
+  };
+</script>
+<script defer src="https://isikjon.github.io/criomedical-clinic/pwa/pwa-install.js"></script>

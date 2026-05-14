@@ -64,8 +64,8 @@
     setMeta("apple-mobile-web-app-capable", "yes");
     setMeta("apple-mobile-web-app-title", config.appShortName);
     setMeta("apple-mobile-web-app-status-bar-style", "default");
-    setLink("apple-touch-icon", absoluteAsset("icons/icon-180x180.png"));
-    setLink("icon", absoluteAsset("icons/favicon.ico"));
+    setManagedLink("apple-touch-icon", absoluteAsset("icons/icon-180x180.png"), "apple-icon");
+    setManagedLink("icon", absoluteAsset("icons/favicon.ico"), "favicon");
   }
 
   function injectManifest() {
@@ -110,14 +110,14 @@
 
     try {
       var blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
-      setLink("manifest", URL.createObjectURL(blob), "anonymous");
+      setManagedLink("manifest", URL.createObjectURL(blob), "manifest", "anonymous");
     } catch (error) {
-      setLink("manifest", absoluteAsset("manifest.webmanifest"), "anonymous");
+      setManagedLink("manifest", absoluteAsset("manifest.webmanifest"), "manifest", "anonymous");
     }
   }
 
   function injectCss() {
-    setLink("stylesheet", absoluteAsset("pwa-install.css?v=20260515-2"));
+    setManagedLink("stylesheet", absoluteAsset("pwa-install.css?v=20260515-3"), "styles");
     document.documentElement.style.setProperty("--cosmo-pwa-bottom-offset", config.bottomOffset);
   }
 
@@ -262,10 +262,12 @@
     meta.setAttribute("content", content);
   }
 
-  function setLink(rel, href, crossOrigin) {
-    var link = document.querySelector('link[rel="' + rel + '"]');
+  function setManagedLink(rel, href, key, crossOrigin) {
+    var selector = 'link[data-cosmo-pwa="' + key + '"]';
+    var link = document.querySelector(selector);
     if (!link) {
       link = document.createElement("link");
+      link.setAttribute("data-cosmo-pwa", key);
       link.setAttribute("rel", rel);
       document.head.appendChild(link);
     }

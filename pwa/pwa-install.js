@@ -18,7 +18,9 @@
       bottomOffset: "0px",
       serviceWorkerUrl: "",
       dismissedDays: 14,
-      showWithoutPrompt: true
+      showWithoutPrompt: true,
+      fallbackDelay: 6500,
+      openChromeOnAndroidFallback: true
     },
     window.COSMO_PWA_CONFIG || {}
   );
@@ -26,12 +28,28 @@
   var storageKey = "cosmo-pwa-install-dismissed-at";
   var deferredPrompt = null;
   var banner = null;
+  var fallbackTimer = null;
   var isStandalone =
     window.matchMedia("(display-mode: standalone)").matches ||
     window.navigator.standalone === true ||
     document.referrer.indexOf("android-app://") === 0;
+  var isAndroid = /android/i.test(window.navigator.userAgent);
   var isiOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
   var isSafari = /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(window.navigator.userAgent);
+  var isChromeLike =
+    /chrome|crios/i.test(window.navigator.userAgent) &&
+    !/edg|opr|opera|samsungbrowser|yabrowser|ucbrowser|miuibrowser|huawei/i.test(window.navigator.userAgent);
+
+  window.COSMO_PWA_STATUS = {
+    ready: false,
+    beforeInstallPrompt: false,
+    installable: false,
+    installed: isStandalone,
+    android: isAndroid,
+    chromeLike: isChromeLike,
+    userAgent: window.navigator.userAgent,
+    lastAction: "init"
+  };
 
   injectMeta();
   injectManifest();
@@ -41,23 +59,42 @@
   window.addEventListener("beforeinstallprompt", function (event) {
     event.preventDefault();
     deferredPrompt = event;
+    window.COSMO_PWA_STATUS.beforeInstallPrompt = true;
+    window.COSMO_PWA_STATUS.installable = true;
+    window.COSMO_PWA_STATUS.lastAction = "beforeinstallprompt";
+    clearFallbackTimer();
     showBanner();
+    updateBannerState();
   });
 
   window.addEventListener("appinstalled", function () {
     deferredPrompt = null;
+    window.COSMO_PWA_STATUS.installed = true;
+    window.COSMO_PWA_STATUS.installable = false;
+    window.COSMO_PWA_STATUS.lastAction = "appinstalled";
     hideBanner(true);
   });
 
   if (config.showWithoutPrompt) {
     ready(function () {
-      window.setTimeout(function () {
+      fallbackTimer = window.setTimeout(function () {
         if (!deferredPrompt && !isStandalone && !isRecentlyDismissed()) {
+          window.COSMO_PWA_STATUS.lastAction = "fallback-banner";
           showBanner();
+          updateBannerState();
         }
-      }, 1200);
+      }, Number(config.fallbackDelay) || 6500);
     });
   }
+
+  window.CosmoPWA = {
+    getStatus: function () {
+      return Object.assign({}, window.COSMO_PWA_STATUS);
+    },
+    install: handleInstallClick
+  };
+
+  window.COSMO_PWA_STATUS.ready = true;
 
   function injectMeta() {
     setMeta("theme-color", config.themeColor);
@@ -69,6 +106,12 @@
   }
 
   function injectManifest() {
+    var existingManifest = document.querySelector('link[rel="manifest"]:not([data-cosmo-pwa])');
+    if (existingManifest) {
+      window.COSMO_PWA_STATUS.manifest = existingManifest.href;
+      return;
+    }
+
     var manifest = {
       id: config.scope,
       name: config.appName,
@@ -117,7 +160,7 @@
   }
 
   function injectCss() {
-    setManagedLink("stylesheet", absoluteAsset("pwa-install.css?v=20260515-3"), "styles");
+    setManagedLink("stylesheet", absoluteAsset("pwa-install.css?v=20260515-4"), "styles");
     document.documentElement.style.setProperty("--cosmo-pwa-bottom-offset", config.bottomOffset);
   }
 
@@ -163,28 +206,51 @@
     });
 
     document.body.appendChild(root);
+    updateBannerState();
     return root;
   }
 
   async function handleInstallClick() {
+    window.COSMO_PWA_STATUS.lastAction = "install-click";
+
     if (deferredPrompt) {
+      window.COSMO_PWA_STATUS.lastAction = "native-prompt-open";
       deferredPrompt.prompt();
       var result = await deferredPrompt.userChoice.catch(function () {
         return { outcome: "dismissed" };
       });
       deferredPrompt = null;
+      window.COSMO_PWA_STATUS.installable = false;
+      window.COSMO_PWA_STATUS.choice = result.outcome;
 
       if (result.outcome === "accepted") {
         hideBanner(true);
+      } else {
+        updateBannerState();
       }
       return;
     }
 
     if (isiOS && isSafari) {
+      window.COSMO_PWA_STATUS.lastAction = "ios-instructions";
       showToast("На iPhone нажмите «Поделиться», затем «На экран Домой».");
       return;
     }
 
+    if (isAndroid && !isChromeLike && config.openChromeOnAndroidFallback) {
+      window.COSMO_PWA_STATUS.lastAction = "open-chrome-intent";
+      openInChrome();
+      showToast("Открываем сайт в Chrome. После открытия нажмите «Установить» ещё раз.");
+      return;
+    }
+
+    if (isAndroid && isChromeLike) {
+      window.COSMO_PWA_STATUS.lastAction = "chrome-waiting-for-prompt";
+      showToast("Подождите пару секунд и нажмите «Установить» ещё раз. Если окно не появится, обновите страницу в Chrome.");
+      return;
+    }
+
+    window.COSMO_PWA_STATUS.lastAction = "generic-instructions";
     showToast("Откройте меню браузера и выберите «Установить приложение» или «Добавить на главный экран».");
   }
 
@@ -193,6 +259,7 @@
     ready(function () {
       banner = banner || buildBanner();
       banner.classList.add("is-visible");
+      updateBannerState();
     });
   }
 
@@ -205,6 +272,46 @@
 
     if (banner) {
       banner.classList.remove("is-visible");
+    }
+  }
+
+  function updateBannerState() {
+    if (!banner) return;
+
+    var installButton = banner.querySelector(".cosmo-pwa-banner__install");
+    if (!installButton) return;
+
+    banner.classList.toggle("is-install-ready", !!deferredPrompt);
+    banner.classList.toggle("is-fallback", !deferredPrompt);
+
+    if (deferredPrompt) {
+      installButton.textContent = config.installText;
+      installButton.removeAttribute("aria-disabled");
+    } else if (isAndroid && !isChromeLike && config.openChromeOnAndroidFallback) {
+      installButton.textContent = "Открыть Chrome";
+      installButton.removeAttribute("aria-disabled");
+    } else {
+      installButton.textContent = config.installText;
+      installButton.removeAttribute("aria-disabled");
+    }
+  }
+
+  function openInChrome() {
+    var currentUrl = window.location.href;
+    var withoutProtocol = currentUrl.replace(/^https?:\/\//i, "");
+    var intent =
+      "intent://" +
+      withoutProtocol +
+      "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" +
+      encodeURIComponent(currentUrl) +
+      ";end";
+    window.location.href = intent;
+  }
+
+  function clearFallbackTimer() {
+    if (fallbackTimer) {
+      window.clearTimeout(fallbackTimer);
+      fallbackTimer = null;
     }
   }
 

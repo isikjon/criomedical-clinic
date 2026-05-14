@@ -1,12 +1,12 @@
 {
-  "id": "https://criomedical-clinic.ru/",
+  "id": "https://www.criomedical-clinic.ru/",
   "name": "Cosmo Beauty",
   "short_name": "Cosmo",
   "description": "Приложение сайта Cosmo Beauty для быстрой записи и просмотра услуг.",
   "lang": "ru-RU",
   "dir": "ltr",
-  "start_url": "https://criomedical-clinic.ru/",
-  "scope": "https://criomedical-clinic.ru/",
+  "start_url": "https://www.criomedical-clinic.ru/",
+  "scope": "https://www.criomedical-clinic.ru/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait",
@@ -84,7 +84,7 @@
     {
       "name": "Записаться",
       "short_name": "Запись",
-      "url": "https://criomedical-clinic.ru/#rec",
+      "url": "https://www.criomedical-clinic.ru/#rec",
       "icons": [
         {
           "src": "./icons/icon-192x192.png",

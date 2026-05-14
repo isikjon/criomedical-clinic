@@ -8,8 +8,8 @@
     subtitle: "Установить приложение",
     themeColor: "#222222",
     backgroundColor: "#ffffff",
-    startUrl: "https://criomedical-clinic.ru/",
-    scope: "https://criomedical-clinic.ru/",
+    startUrl: "https://www.criomedical-clinic.ru/",
+    scope: "https://www.criomedical-clinic.ru/",
 
     /*
       Заменить на публичный URL папки pwa/ после включения GitHub Pages.
@@ -29,7 +29,10 @@
     */
     bottomOffset: "0px",
     dismissedDays: 14,
-    showWithoutPrompt: true
+    showWithoutPrompt: true,
+    fallbackDelay: 6500,
+    openChromeOnAndroidFallback: true
   };
 </script>
-<script defer src="https://isikjon.github.io/criomedical-clinic/pwa/pwa-install.js?v=20260515-3"></script>
+<link rel="manifest" crossorigin="anonymous" href="https://isikjon.github.io/criomedical-clinic/pwa/manifest.webmanifest?v=20260515-4">
+<script defer src="https://isikjon.github.io/criomedical-clinic/pwa/pwa-install.js?v=20260515-4"></script>

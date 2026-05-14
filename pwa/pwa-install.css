@@ -105,6 +105,11 @@
   outline-offset: 3px;
 }
 
+.cosmo-pwa-banner.is-fallback .cosmo-pwa-banner__install {
+  min-width: 188px;
+  font-size: 18px;
+}
+
 .cosmo-pwa-banner__install:active {
   transform: translateY(1px);
 }
@@ -189,6 +194,12 @@
     font-size: 16px;
   }
 
+  .cosmo-pwa-banner.is-fallback .cosmo-pwa-banner__install {
+    min-width: 134px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
   .cosmo-pwa-banner__close {
     width: 34px;
     height: 34px;
@@ -232,6 +243,12 @@
     height: 42px;
     padding: 0 12px;
     font-size: 14px;
+  }
+
+  .cosmo-pwa-banner.is-fallback .cosmo-pwa-banner__install {
+    min-width: 120px;
+    padding: 0 10px;
+    font-size: 12px;
   }
 
   .cosmo-pwa-banner__close {
